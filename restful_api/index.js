@@ -26,14 +26,17 @@ var server = http.createServer(function(req, res) {
     // Get the query string as an object
     var queryStringObject = parsedUrl.query;
 
-
     // Get the HTTP Method
     var method = req.method.toLocaleLowerCase();
+
+    // Get the headers as an object
+    var headers = req.headers;
 
     // Send the response
     res.end('Hello World\n');
 
     // Log the request path
+    console.log('Headers', headers);
     console.log(`[${method.toLocaleUpperCase()}] / ${trimmedPath} - Query `, queryStringObject);
 });
 
