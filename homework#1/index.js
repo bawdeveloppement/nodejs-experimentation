@@ -1,10 +1,9 @@
 const http  = require("http");
 const config= require("./config");
 const Router = require("./router");
-const router= require("./router");
 
 
-const httpServer = http.createServer(router);
+const httpServer = http.createServer(Router);
 
 Router.get("hi", (req, res) => {
     let payload = {
