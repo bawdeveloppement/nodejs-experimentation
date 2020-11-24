@@ -2,12 +2,11 @@ const http  = require("http");
 const config= require("./config");
 const Router = require("./router");
 
-
 const httpServer = http.createServer(Router);
 
-Router.get("hi", (req, res) => {
+Router.get("hello", (req, res) => {
     let payload = {
-        'hi': 'bro'
+        'welcome': 'man'
     };
 
     // Convert the payload to a string
@@ -21,12 +20,12 @@ Router.get("hi", (req, res) => {
 });
 
 
-Router.get("hi/hello", (req, res) => {
+Router.post("hello/you", (req, res) => {
     let payload = {
-        'hi': 'bro'
+        'hello': 'you'
     };
 
-    // Convert the payload to a string
+    // Convert the json payload to a string
     var payloadString = JSON.stringify(payload);
 
     // Return the response
