@@ -9,8 +9,12 @@ var http = require('http');
 var url = require('url');
 var StringDecoder = require('string_decoder').StringDecoder;
 
-// Vars
-var port = 3000;
+// Env Vars
+// ES6 Destructuring
+// var { foo } = bar
+// ===
+// var foo = bar.foo
+const { port, envName } = require('./config');
 
 // The server should respond to all request with a string
 var server = http.createServer(function(req, res) {
@@ -93,7 +97,7 @@ var router = {
     'sample': handlers.sample
 }
 
-// Start the server, and hve it listen on port 3000
+// Start the server, and have it listen on port 3000
 server.listen(port, function () {
-    console.log(`The server is listening on port ${port}`);
+    console.log(`The ${envName} server is listening on port ${port}`);
 });
