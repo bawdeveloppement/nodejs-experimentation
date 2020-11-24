@@ -4,21 +4,41 @@
  */
 
 // Dependencies
-const { stat } = require('fs');
-var http = require('http');
-var url = require('url');
+var http    = require('http');
+var https   = require('https');
+var url     = require('url');
 var StringDecoder = require('string_decoder').StringDecoder;
+var fs      = require('fs');
 
 // Env Vars
 // ES6 Destructuring
-// var { foo } = bar
-// ===
-// var foo = bar.foo
-const { port, envName } = require('./config');
+// var { foo } = bar  === var foo = bar.foo
+const { httpPort, httpsPort, envName } = require('./config');
 
 // The server should respond to all request with a string
-var server = http.createServer(function(req, res) {
-    
+var server = http.createServer((req, res) => unifiedServer(req, res));
+
+// Start the server, and have it listen on port 3000
+server.listen(httpPort, function () {
+    console.log(`The http:${envName} server is listening on port ${httpPort}`);
+});
+
+// Instantiate https servers
+var https_options = {
+    'key': fs.readFileSync('./https/key.pem'),
+    'cert': fs.readFileSync('./https/cert.pem') 
+};
+
+
+var secure_server = https.createServer(https_options, (req, res) => unifiedServer(req, res))
+
+// Start https server
+secure_server.listen(httpsPort, () => {
+    console.log(`The https:${envName} server is listening on port ${httpsPort}`);
+})
+
+var unifiedServer = function(req, res) {
+    console.log(req, res)
     // Get the URL and parse it
     // parsedUrl is an object a bunch of keys of parsed automated
     // data about the request path the url came in
@@ -59,6 +79,7 @@ var server = http.createServer(function(req, res) {
 
         // Route the request to the handler specified in the router
         chooseHandler(data, function (statusCode, payload){
+            console.log(data)
             // Use the status code called back by the handler, or default
             statusCode = typeof(statusCode) === 'number' ? statusCode : 200;
 
@@ -78,7 +99,7 @@ var server = http.createServer(function(req, res) {
             console.log('Returning this response: ', statusCode, payloadString);
         });
     });
-});
+}
 
 // Define our handlers
 var handlers = {}
@@ -96,8 +117,3 @@ handlers.notfound = function (data, callback){
 var router = {
     'sample': handlers.sample
 }
-
-// Start the server, and have it listen on port 3000
-server.listen(port, function () {
-    console.log(`The ${envName} server is listening on port ${port}`);
-});
