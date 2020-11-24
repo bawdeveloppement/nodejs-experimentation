@@ -54,7 +54,7 @@ var Router = (req, res) => {
     var parsedUrl = url.parse(req.url, true);
     const { path, query } = parsedUrl;
     var trimmedPath = path.replace(/^\/+|\/+$/g, '');
-    var method = req.method.toLocaleLowerCase();
+    var targetMethod = req.method.toLocaleLowerCase();
     var headers = req.headers;
 
     var decoder = new StringDecoder('utf-8');
@@ -62,7 +62,7 @@ var Router = (req, res) => {
     req.on('data', (data) => buffer += decoder.write(data))
     req.on('end', () => {
         buffer += decoder.end();
-        let targetHandler = Router.routes.filter(({ name }) => name === trimmedPath)
+        let targetHandler = Router.routes.filter(({ name, method }) => name === trimmedPath && method == targetMethod)
         targetHandler = targetHandler.length !== 0
         ? targetHandler[0].cb(req, res) : Router.routes.filter(({ name }) => name === "*")[0].cb(req, res);
     })
@@ -70,9 +70,12 @@ var Router = (req, res) => {
 
 Router.routes = [
     { name: '*', cb : NotFoundCallback },
-    { name: "hello", cb: helloWallback }
+    { name: "hello", method: "get", cb: helloWallback }
 ]
 
-Router.register = (name, cb) => Router.routes.push({ name, cb }) 
+Router.get = (name, cb) => Router.routes.push({ name, method: "get", cb });
+Router.post = (name, cb) => Router.routes.push({ name, method: "post", cb });
+Router.patch = (name, cb) => Router.routes.push({ name, method: "patch", cb });
+Router.head = (name, cb) => Router.routes.push({ name, method: "head", cb });
 
 module.exports = Router
