@@ -8,7 +8,7 @@ const http      = require('http');
 const https     = require('https');
 const fs        = require('fs');
 const config    = require('./config');
-const router    = require('./lib/router');
+const Router    = require('./lib/router');
 const _data     = require('./lib/data')
 
 const httpServer = http.createServer(Router);
