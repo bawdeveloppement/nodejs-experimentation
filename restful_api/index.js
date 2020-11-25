@@ -8,7 +8,7 @@ const http      = require('http');
 const https     = require('https');
 const fs        = require('fs');
 const config    = require('./config');
-// const { users, ping } = require('./routes');
+const { UserRouter, PingRouter } = require('./routes');
 const MiniRouter = require('./lib/router');
 //#endregion
 
@@ -26,21 +26,8 @@ MiniRouter.get("", (_req, res) => {
     res.end(JSON.stringify({ 'message' : 'Welcome Sorcerer' }))
 });
 
-MiniRouter.get("te", (_req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.writeHead(200);
-    res.end(JSON.stringify({ "message": "Hello Knight" }))
-});
-
-let UserRouter = MiniRouter.Router("user");
-
-UserRouter.get("d", (_req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.writeHead(200);
-    res.end(JSON.stringify({ "message": "Hello Knight" }))
-});
-
-MiniRouter.use(UserRouter)
+MiniRouter.use(PingRouter);
+MiniRouter.use(UserRouter);
 
 //#region Listening
 const { httpPort } = config;
