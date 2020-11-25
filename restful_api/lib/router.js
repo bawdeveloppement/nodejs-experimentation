@@ -63,7 +63,7 @@ var MiniRouter = (req, res) => {
         })[0];
 
         if (typeof targetHandler !== "undefined") {
-            console.log(targetHandler)
+            console.log(`[${targetHandler.method.toLocaleUpperCase()}] / ${targetHandler.name}`)
             targetHandler.cb(req, res);
         } else MiniRouter.routes.filter(({ name }) => name === "*")[0].cb(req, res);
     });
@@ -81,10 +81,8 @@ MiniRouter.routes = [
     { name: '*', cb: NotFoundCallback },
 ];
 
-
+// SubRouter system
 MiniRouter.Router = (routeName) => {
-    console.log("hello " + routeName)
-    let methods = ["get", "post", "head", "put", "patch"]
     let routes = []
 
     const getRouteName = (name) => `${routeName}${name.length != 0 ? "/"+name : name}`
@@ -111,7 +109,6 @@ MiniRouter.Router = (routeName) => {
 
 MiniRouter.use = (router) => {
     router.routes.forEach(route => MiniRouter.routes.push(route))
-    console.log(MiniRouter)
 }
 
 module.exports = MiniRouter
