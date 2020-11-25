@@ -1,6 +1,6 @@
-const { type } = require("os");
 const { StringDecoder } = require("string_decoder");
 const url   = require("url");
+const helpers = require("./helpers");
 
 // This module will be used for creating a router handler
 // Providing method to register router
@@ -61,6 +61,8 @@ var MiniRouter = (req, res) => {
         let targetHandler = MiniRouter.routes.filter(({ name, method }) => {
             return name === trimmedPath && method == targetMethod
         })[0];
+    
+        req.payload = helpers.parseJsonToObject(buffer);
 
         if (typeof targetHandler !== "undefined") {
             console.log(`[${targetHandler.method.toLocaleUpperCase()}] / ${targetHandler.name}`)
