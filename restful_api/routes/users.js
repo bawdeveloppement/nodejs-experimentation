@@ -2,18 +2,27 @@ let UserRouter  = require("../lib/router").Router("user");
 let _data       = require("../lib/data");
 let helpers     = require("../lib/helpers");
 
-UserRouter.get("", (_req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    res.writeHead(200);
-    res.end(JSON.stringify({ "message": "Hello Dear User" }))
+UserRouter.get("", (req, res) => {
+    let phone = typeof(req.data.query.phone) == 'string' && req.data.query.phone.trim().length == 10 ? req.data.query.phone.trim() : false
+    if (phone) {
+        // Look up the user
+        _data.read('users', phone, function(err, data) {
+            if (!err && data) {
+
+            } else res.status(400).json({ Error: 'Not found' });
+        });
+    } else res.status(400).json({ Error: "Missing required field" })
 });
 
+//#region [POST] Create a new user
 UserRouter.post("", (req, res) => {
-    var firstName = typeof(req.payload.firstName) == 'string' && req.payload.firstName.trim().length > 0 ? req.payload.firstName.trim() : false; 
-    var lastName = typeof(req.payload.lastName) == 'string' && req.payload.lastName.trim().length > 0 ? req.payload.lastName.trim() : false; 
-    var phone = typeof(req.payload.phone) == 'string' && req.payload.phone.trim().length > 0 ? req.payload.phone.trim() : false; 
-    var password = typeof(req.payload.password) == 'string' && req.payload.password.trim().length > 0 ? req.payload.password.trim() : false; 
-    var tosAgreement = typeof(req.payload.tosAgreement) == 'boolean' && req.payload.tosAgreement == true ? true : false
+    //#region  Check payload data
+    var firstName = typeof(req.data.payload.firstName) == 'string' && req.data.payload.firstName.trim().length > 0 ? req.data.payload.firstName.trim() : false; 
+    var lastName = typeof(req.data.payload.lastName) == 'string' && req.data.payload.lastName.trim().length > 0 ? req.data.payload.lastName.trim() : false; 
+    var phone = typeof(req.data.payload.phone) == 'string' && req.data.payload.phone.trim().length > 0 ? req.data.payload.phone.trim() : false; 
+    var password = typeof(req.data.payload.password) == 'string' && req.data.payload.password.trim().length > 0 ? req.data.payload.password.trim() : false; 
+    var tosAgreement = typeof(req.data.payload.tosAgreement) == 'boolean' && req.data.payload.tosAgreement == true ? true : false
+    //#endregion
     if (firstName && lastName && phone && password && tosAgreement) {
         // Make sure that the user doesn't already exist
         _data.read('users', phone, function(err, data){
@@ -27,35 +36,16 @@ UserRouter.post("", (req, res) => {
                         'hashedPassword': hashedPassword,
                         'tosAgreement': true
                     }
-    
+                    // Create the new user
                     _data.create('users', phone, userObject, function(err) {
-                        if (!err) {
-                            res.setHeader('Content-Type', 'application/json');
-                            res.writeHead(200);
-                            res.end(JSON.stringify({ 'Success': 'User created' }));
-                        } else {
-                            res.setHeader('Content-Type', 'application/json');
-                            res.writeHead(500);
-                            res.end(JSON.stringify({ 'Error': 'Could not create the new user' }));
-                        }
+                        if (!err) res.status(200).json({ 'Success': 'User created' });
+                        else res.status(500).json({ 'Error': 'Could not create the new user' })
                     });
-                } else {
-                    res.setHeader('Content-Type', 'application/json');
-                    res.writeHead(500);
-                    res.end(JSON.stringify({ 'Error': 'Could not hash the user password' }));
-                }
-            }
-            else {
-                res.setHeader('Content-Type', 'application/json');
-                res.writeHead(400);
-                res.end(JSON.stringify({ 'Error': 'A user with that phone number already exist' }));
-            }
+                } else res.status(500).json({ 'Error': 'Could not hash the user password' })
+            } else res.status(400).json({ 'Error': 'A user with that phone number already exist' })
         })
-    } else {
-        res.setHeader('Content-Type', 'application/json');
-        res.writeHead(400);
-        res.end(JSON.stringify({ 'Error': 'Missing required field' }));
-    }
+    } else res.status(400).json({ 'Error': 'Missing required field' })
 });
+//#endregion
 
 module.exports = UserRouter;
