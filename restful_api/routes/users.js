@@ -7,13 +7,19 @@ let helpers     = require("../lib/helpers");
 UserRouter.get("", (req, res) => {
     let phone = typeof(req.data.query.phone) == 'string' && req.data.query.phone.trim().length == 10 ? req.data.query.phone.trim() : false
     if (phone) {
-        // Look up the user
-        _data.read('users', phone, function(err, data) {
-            if (!err && data) {
-                delete data.hashedPassword;
-                res.status(200).json(data);
-            } else res.status(404).json({ Error: 'User not found' });
-        });
+        // Get the token from the header
+        let token = typeof(req.headers.token) === 'string' ? req.headers.token : false;
+        // Verify the given token from the header
+        console.log(token)
+        if (helpers.verifyToken(token, phone)) {
+            // Look up the user
+            _data.read('users', phone, function(err, data) {
+                if (!err && data) {
+                    delete data.hashedPassword;
+                    res.status(200).json(data);
+                } else res.status(404).json({ Error: 'User not found' });
+            });
+        } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' })
     } else res.status(400).json({ Error: "Missing or incorrect required field" })
 });
 //#endregion
@@ -98,5 +104,7 @@ UserRouter.delete('', (req, res) => {
     } else res.status(400).json({ Error: "Missing or incorrect required field" });
 });
 //#endregion 
+
+
 
 module.exports = UserRouter;

@@ -1,4 +1,5 @@
 module.exports = {
     UserRouter : require("./users"),
-    PingRouter : require("./ping")
+    PingRouter : require("./ping"),
+    TokenRouter: require("./tokens")
 }

@@ -8,8 +8,12 @@ const http      = require('http');
 const https     = require('https');
 const fs        = require('fs');
 const config    = require('./config');
-const { UserRouter, PingRouter } = require('./routes');
 const MiniRouter = require('./lib/router');
+const {
+    UserRouter,
+    PingRouter,
+    TokenRouter
+} = require('./routes');
 //#endregion
 
 //#region Init Http
@@ -28,6 +32,7 @@ MiniRouter.get("", (_req, res) => {
 
 MiniRouter.use(PingRouter);
 MiniRouter.use(UserRouter);
+MiniRouter.use(TokenRouter);
 
 //#region Listening
 const { httpPort } = config;
