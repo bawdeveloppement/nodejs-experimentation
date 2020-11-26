@@ -8,8 +8,8 @@ const helpers = require("./helpers");
 // Create the router
 var MiniRouter = (req, res) => {
     var parsedUrl = url.parse(req.url, true);
-    const { path, query } = parsedUrl;
-    var trimmedPath = path.replace(/^\/+|\/+$/g, '');
+    const { pathname, query } = parsedUrl;
+    var trimmedPath = pathname.replace(/^\/+|\/+$/g, '');
     var targetMethod = req.method.toLocaleLowerCase();
     var headers = req.headers;
 
@@ -41,7 +41,7 @@ var MiniRouter = (req, res) => {
         // Simplify access of theses data over all routes
         req.data = {}
         req.data.payload = helpers.parseJsonToObject(buffer);
-        req.data.query = parsedUrl.query;
+        req.data.query = query;
 
         if (typeof targetHandler !== "undefined") {
             console.log(`[${targetHandler.method.toLocaleUpperCase()}] / ${targetHandler.name}`)
@@ -66,6 +66,7 @@ MiniRouter.post     = (name, cb) => MiniRouter.routes.push({ name, method: "post
 MiniRouter.patch    = (name, cb) => MiniRouter.routes.push({ name, method: "patch", cb });
 MiniRouter.head     = (name, cb) => MiniRouter.routes.push({ name, method: "head", cb });
 MiniRouter.put      = (name, cb) => MiniRouter.routes.push({ name, method: "put", cb });
+MiniRouter.delete   = (name, cb) => MiniRouter.routes.push({ name, method: "delete", cb });
 
 // List of all routes
 MiniRouter.routes = [
@@ -79,11 +80,12 @@ MiniRouter.Router = (routeName) => {
     const getRouteName = (name) => `${routeName}${name.length != 0 ? "/"+name : name}`
     return {
         routes: routes, // Return the internal route for later bind steps
-        get : (name, cb) => routes.push({ name: getRouteName(name), method: "get", cb }),
-        post : (name, cb) => routes.push({ name: getRouteName(name), method: "post", cb }),
-        patch : (name, cb) => routes.push({ name: getRouteName(name), method: "patch", cb }),
-        put : (name, cb) => routes.push({ name: getRouteName(name), method: "put", cb }),
-        head : (name, cb) => routes.push({ name: getRouteName(name), method: "head", cb }),
+        get     : (name, cb) => routes.push({ name: getRouteName(name), method: "get",      cb }),
+        post    : (name, cb) => routes.push({ name: getRouteName(name), method: "post",     cb }),
+        patch   : (name, cb) => routes.push({ name: getRouteName(name), method: "patch",    cb }),
+        put     : (name, cb) => routes.push({ name: getRouteName(name), method: "put",      cb }),
+        head    : (name, cb) => routes.push({ name: getRouteName(name), method: "head",     cb }),
+        delete  : (name, cb) => routes.push({ name: getRouteName(name), method: "delete",   cb }),
     }
 }
 
