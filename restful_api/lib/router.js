@@ -11,7 +11,6 @@ var MiniRouter = (req, res) => {
     const { pathname, query } = parsedUrl;
     var trimmedPath = pathname.replace(/^\/+|\/+$/g, '');
     var targetMethod = req.method.toLocaleLowerCase();
-    var headers = req.headers;
 
     var decoder = new StringDecoder('utf-8');
     var buffer = '';

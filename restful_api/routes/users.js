@@ -2,6 +2,7 @@ let UserRouter  = require("../lib/router").Router("user");
 let _data       = require("../lib/data");
 const { hash }  = require("../lib/helpers");
 let helpers     = require("../lib/helpers");
+const utils = require("../lib/utils");
 
 //#region [GET] Access user data. Need to be authentificated
 UserRouter.get("", (req, res) => {
@@ -10,16 +11,18 @@ UserRouter.get("", (req, res) => {
         // Get the token from the header
         let token = typeof(req.headers.token) === 'string' ? req.headers.token : false;
         // Verify the given token from the header
-        console.log(token)
-        if (helpers.verifyToken(token, phone)) {
+        utils.verifyToken(token, phone, (tokenIsValid) => {
             // Look up the user
-            _data.read('users', phone, function(err, data) {
-                if (!err && data) {
-                    delete data.hashedPassword;
-                    res.status(200).json(data);
-                } else res.status(404).json({ Error: 'User not found' });
-            });
-        } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' })
+            if (tokenIsValid) {
+                _data.read('users', phone, function(err, data) {
+                    if (!err && data) {
+                        delete data.hashedPassword;
+                        res.status(200).json(data);
+                    } else res.status(404).json({ Error: 'User not found' });
+                });
+
+            } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' })
+        });
     } else res.status(400).json({ Error: "Missing or incorrect required field" })
 });
 //#endregion
@@ -69,18 +72,25 @@ UserRouter.put('', (req, res) => {
     
     if (phone) {
         if (firstName || lastName || password) {
-            _data.read('users', phone, function(err, userData){
-                if (!err && userData) {
-                    if (firstName) userData.firstName = firstName;
-                    if (lastName) userData.lastName = lastName;
-                    if (password) userData.password = hash(password);
-                    // Update the data
-                    _data.update('users', phone, userData, (err) => {
-                        if (!err) {
-                            res.status(200).json({ 'Message': 'Success' })
-                        } else res.status(500).json({ Error: 'Could not update the user' })
-                    })
-                } else res.status(400).json({ Error: 'The specified user does not exist' });
+
+            let token = typeof(req.headers.token) === 'string' ? req.headers.token : false;
+
+            utils.verifyToken(token, phone, (tokenIsValid) => {
+                if (tokenIsValid) {
+                    _data.read('users', phone, function(err, userData){
+                        if (!err && userData) {
+                            if (firstName) userData.firstName = firstName;
+                            if (lastName) userData.lastName = lastName;
+                            if (password) userData.password = hash(password);
+                            // Update the data
+                            _data.update('users', phone, userData, (err) => {
+                                if (!err) {
+                                    res.status(200).json({ 'Message': 'Success' })
+                                } else res.status(500).json({ Error: 'Could not update the user' })
+                            })
+                        } else res.status(400).json({ Error: 'The specified user does not exist' });
+                    });
+                } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' })
             });
         } else res.status(400).json({ Error: 'Missing field to update' });
     } else res.status(400).json({ 'Error': 'Missing required field' });
@@ -91,15 +101,22 @@ UserRouter.put('', (req, res) => {
 UserRouter.delete('', (req, res) => {
     let phone = typeof(req.data.query.phone) == 'string' && req.data.query.phone.trim().length == 10 ? req.data.query.phone.trim() : false
     if (phone) {
+
+        let token = typeof(req.headers.token) === 'string' ? req.headers.token : false;
+
         // Look up the user
-        _data.read('users', phone, function(err, data) {
-            if (!err && data) {
-                _data.delete('users', phone, (err) => {
-                    if (!err) {
-                        res.status(200).json({ Message: 'Success' });
-                    } else res.status(500).json({ Error: 'Could not delete the specify user '})
+        utils.verifyToken(token, phone, (tokenIsValid) => {
+            if (tokenIsValid) {
+                _data.read('users', phone, function(err, data) {
+                    if (!err && data) {
+                        _data.delete('users', phone, (err) => {
+                            if (!err) {
+                                res.status(200).json({ Message: 'Success' });
+                            } else res.status(500).json({ Error: 'Could not delete the specify user '});
+                        });
+                    } else res.status(400).json({ Error: 'Could not find the specify user' });
                 });
-            } else res.status(400).json({ Error: 'Could not find the specify user' });
+            } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' });
         });
     } else res.status(400).json({ Error: "Missing or incorrect required field" });
 });

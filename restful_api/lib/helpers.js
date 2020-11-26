@@ -46,20 +46,5 @@ helpers.createRandomString = (strLen) => {
     } else return false;
 }
 
-var _data = require("./data");
-/**
- * @todo make verifyToken another place
- * @param {} id 
- * @param {*} phone 
- */
-helpers.verifyToken = (id, phone) => {
-    _data.read("tokens", id, function (err, data) {
-        if (!err && data) {
-            if (data.phone === phone && data.expires > Date.now()) {
-                return true;
-            } else return false;
-        } else return false; 
-    })
-}
 
 module.exports = helpers;

@@ -45,7 +45,3 @@ httpsServer.listen(httpsPort, () => {
     console.log(`The httpsServer is listening on ${httpsPort}`)
 })
 //#endregion
-
-// let MiniRouter = (req, res) => {
-
-// }
