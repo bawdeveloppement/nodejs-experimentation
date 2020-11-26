@@ -1,6 +1,6 @@
 let UserRouter  = require("../lib/router").Router("user");
 let _data       = require("../lib/data");
-const { hash } = require("../lib/helpers");
+const { hash }  = require("../lib/helpers");
 let helpers     = require("../lib/helpers");
 
 //#region [GET] Access user data. Need to be authentificated
@@ -98,4 +98,5 @@ UserRouter.delete('', (req, res) => {
     } else res.status(400).json({ Error: "Missing or incorrect required field" });
 });
 //#endregion 
+
 module.exports = UserRouter;
