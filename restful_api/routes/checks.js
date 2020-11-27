@@ -146,6 +146,46 @@ ChecksRouter.put(_, (req, res) => {
 /**
  * @requires [id]
  */
+ChecksRouter.delete(_, (req, res) => {
+    let id = typeof(req.data.query.id) == 'string' && req.data.query.id.trim().length == 20 ? req.data.query.id.trim() : false
+    if (id) {
+
+        _data.read("checks", id, (err, checkData) => {
+            if (!err && checkData) {
+                let token = typeof(req.headers.token) === 'string' ? req.headers.token : false;
+
+                // Verify that the token is valid for the phone number
+                utils.verifyToken(token, checkData.userPhone, (tokenIsValid) => {
+                    if (tokenIsValid) {
+                        // Delete the check data
+                        _data.delete("checks", id, (err) => {
+                            if(!err) {
+                                // Look up for the user
+                                _data.read('users', checkData.userPhone, function(err, userData) {
+                                    if (!err && userData) {
+                                        let userChecks = typeof(userData.checks) === 'object' && userData.checks instanceof Array ? userData.checks : [];
+
+                                        // Remove the deleted checks from their list of checks
+                                        var checkPosition = userChecks.indexOf(id);
+                                        if (checkPosition > -1) {
+                                            userChecks.splice(checkPosition, 1);
+                                            // Re-save the user data
+                                            _data.update('users', checkData.userPhone, userData, (err) => {
+                                                if (!err) {
+                                                    res.status(200).json({ Message: 'Update success' });
+                                                } else res.status(500).json({ Error: 'Could not update the user '});
+                                            });
+                                        } else res.status(500).json({ Error: 'Could not find the check on the user object so could not remove it'});
+                                    } else res.status(500).json({ Error: 'Could not find the user who created the check so could not delete the check from the list' });
+                                });
+                            } else res.status(500).json({ Error: 'Could not delete the check data' })
+                        });
+                    } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' });
+                });
+            } else res.status(404).json({ Error: 'The specified check id does not exist' });
+        });
+    } else res.status(400).json({ Error: "Missing or incorrect required field" });
+});
 //#endregion
 
 module.exports = ChecksRouter;

@@ -1,4 +1,4 @@
-let UserRouter  = require("../lib/router").Router("user");
+let UserRouter  = require("../lib/router").Router("users");
 let _data       = require("../lib/data");
 const { hash }  = require("../lib/helpers");
 let helpers     = require("../lib/helpers");
@@ -17,6 +17,7 @@ UserRouter.get("", (req, res) => {
                 _data.read('users', phone, function(err, data) {
                     if (!err && data) {
                         delete data.hashedPassword;
+                        data.lastToken ? delete data.lastToken : false;
                         res.status(200).json(data);
                     } else res.status(404).json({ Error: 'User not found' });
                 });
