@@ -108,11 +108,33 @@ UserRouter.delete('', (req, res) => {
         // Look up the user
         utils.verifyToken(token, phone, (tokenIsValid) => {
             if (tokenIsValid) {
-                _data.read('users', phone, function(err, data) {
-                    if (!err && data) {
+                _data.read('users', phone, function(err, userData) {
+                    if (!err && userData) {
                         _data.delete('users', phone, (err) => {
                             if (!err) {
-                                res.status(200).json({ Message: 'Success' });
+                                // Delete each of the checks associated with the user
+                                let userChecks = typeof(userData.checks) === 'object' && userData.checks instanceof Array ? userData.checks : [];
+                                let checksToDelete = userChecks.length;
+                                if (checksToDelete > 0) {
+                                    let checksDeleted = 0;
+                                    let deletionErrors = false;
+                                    // Loop through the checks
+                                    userChecks.forEach((checkId) => {
+                                        _data.delete('checks', checkId, (err) => {
+                                            if (err) deletionErrors = true;
+                                            checksDeleted += 1;
+                                            if (checksDeleted == checksToDelete) {
+                                                if (deletionErrors) {
+                                                    res.status(500).json({ Error: 'Errors encontered while attempting to delete all of the user checks, All checks may not have been delete from our system successfully' });
+                                                }
+                                            }
+                                        });
+                                    });
+                                    _data.delete('tokens', userData.lastToken, (err) => {
+                                        res.status(200).json({ Message: 'Success' });
+                                    });
+                                }
+                                else res.status(200).json({ Message: 'Success' });
                             } else res.status(500).json({ Error: 'Could not delete the specify user '});
                         });
                     } else res.status(400).json({ Error: 'Could not find the specify user' });
