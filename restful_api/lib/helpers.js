@@ -3,7 +3,7 @@
 **/
  
 // Dependencies
-var { hashSecret, twillio } = require("../config");
+var { hashSecret, twillio } = require("./config");
 var crypto = require('crypto');
 var https = require('https');
 var querystring = require('querystring');

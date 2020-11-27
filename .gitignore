@@ -4,5 +4,4 @@ restful_api/.data/users/*
 restful_api/.data/checks/*
 restful_api/.data/tokens/*
 
-restful_api/config.js
-/restful_api/config.js
+/restful_api/lib/config.js

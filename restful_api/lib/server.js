@@ -9,6 +9,7 @@ const https     = require('https');
 const fs        = require('fs');
 const config    = require('./config');
 const MiniRouter = require('./router');
+const path      = require('path');
 const {
     UserRouter,
     PingRouter,
@@ -30,8 +31,8 @@ helpers.sendTwillioSms('0766284056', 'Hello', (err) => {
 //#region Init Http & Https
 server.http     = http.createServer(MiniRouter);
 server.https    = https.createServer({
-    key: fs.readFileSync("./https/key.pem"),
-    cert: fs.readFileSync("./https/cert.pem")
+    key: fs.readFileSync(path.join(__dirname, "/../https/key.pem")),
+    cert: fs.readFileSync(path.join(__dirname, "/../https/cert.pem"))
 }, MiniRouter);
 //#endregion
 

@@ -1,5 +1,5 @@
 let ChecksRouter    = require("../lib/router").Router("checks");
-let config          = require("../config");
+let config          = require("../lib/config");
 let _data           = require("../lib/data");
 const helpers       = require("../lib/helpers");
 const utils         = require("../lib/utils");

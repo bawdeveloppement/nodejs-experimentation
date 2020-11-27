@@ -13,6 +13,11 @@ environments.staging = {
     'envName'   : 'staging',
     'hashSecret': 'ThisIsASecret',
     'maxChecks' : 5,
+    'twillio': { // This is fake data
+        'accountSid'    : '3b1bbc523e1ACf94a23bd81c8428120387',
+        'authToken'     : 'eb4f479b540805197d3ad544f5ebbd87',
+        'fromPhone'     : '+11172825155'
+    }
 };
 
 environments.production = {
@@ -20,7 +25,12 @@ environments.production = {
     'httpsPort' : 5001,
     'envName'   : 'production',
     'hashSecret': 'ThisIsAnotherSecret',
-    'maxChecks' : 5
+    'maxChecks' : 5,
+    'twillio': { // This is fake data
+        'accountSid'    : '3b1bbc523e1ACf94a23bd81c8428120387',
+        'authToken'     : 'eb4f479b540805197d3ad544f5ebbd87',
+        'fromPhone'     : '+11172825155'
+    }
 };
 
 // Determine which environment was passed as a command-line arg
