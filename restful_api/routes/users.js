@@ -21,9 +21,9 @@ UserRouter.get("", (req, res) => {
                     } else res.status(404).json({ Error: 'User not found' });
                 });
 
-            } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' })
+            } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' });
         });
-    } else res.status(400).json({ Error: "Missing or incorrect required field" })
+    } else res.status(400).json({ Error: "Missing or incorrect required field" });
 });
 //#endregion
 
