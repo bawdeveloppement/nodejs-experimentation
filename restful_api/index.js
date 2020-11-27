@@ -12,9 +12,9 @@ const MiniRouter = require('./lib/router');
 const {
     UserRouter,
     PingRouter,
-    TokenRouter
+    TokenRouter,
+    CheckRouter
 } = require('./routes');
-const ChecksRouter = require('./routes/checks');
 //#endregion
 
 //#region Init Http
@@ -34,7 +34,7 @@ MiniRouter.get("", (_req, res) => {
 MiniRouter.use(PingRouter);
 MiniRouter.use(UserRouter);
 MiniRouter.use(TokenRouter);
-MiniRouter.use(ChecksRouter);
+MiniRouter.use(CheckRouter);
 
 //#region Listening
 const { httpPort } = config;
