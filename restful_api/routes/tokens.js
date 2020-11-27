@@ -11,11 +11,11 @@ TokenRouter.post("", (req, res) => {
     console.log(phone, password)
     if (phone && password) {
         // Look up the user that matches that phone number
-        _data.read("users", phone, (err, data) => {
-            if (!err && data) {
+        _data.read("users", phone, (err, userData) => {
+            if (!err && userData) {
                 // Hash the sent password and compare it the stored 
                 let hashedPassword = helpers.hash(password);
-                if (hashedPassword === data.hashedPassword) {
+                if (hashedPassword === userData.hashedPassword) {
                     // If valid create a new token with a random name, Set expiration date 
                     let tokenId = helpers.createRandomString(20);
                     let expires = Date.now() + 1000 * 60 * 60;
@@ -26,8 +26,26 @@ TokenRouter.post("", (req, res) => {
                     }
                     // Store the token
                     _data.create("tokens", tokenId, tokenObject, (err) => {
-                        if (!err) {
-                            res.status(200).json(tokenObject)
+                        if (!err) { 
+                            // Store the last token id in user
+                            if (typeof(userData.lastToken) !== 'undefined') {
+                                _data.delete("tokens", userData.lastToken, (err) => {
+                                    // Store the new token in user
+                                    userData.lastToken = tokenId;
+                                    _data.update("users", phone, userData, (err) => {
+                                        if(!err) {
+                                            res.status(200).json(tokenObject);
+                                        } else res.status(500).json({ Error: 'Could not store the last tokenId in user' });
+                                    })
+                                })
+                            } else {
+                                userData.lastToken = tokenId;
+                                _data.update("users", phone, userData, (err) => {
+                                    if(!err) {
+                                        res.status(200).json(tokenObject);
+                                    } else res.status(500).json({ Error: 'Could not store the last tokenId in user' });
+                                });
+                            }
                         } else res.status(500).json({ Error: 'Could not create the new token' });
                     })
                 } else res.status(400).json({ Error: 'Password did not match the specify user stored password' });
