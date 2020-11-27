@@ -10,14 +10,16 @@ environments.staging = {
     'httpPort'  : 3000,
     'httpsPort' : 3001,
     'envName'   : 'staging',
-    'hashSecret': 'ThisIsASecret' 
+    'hashSecret': 'ThisIsASecret',
+    'maxChecks' : 5,
 };
 
 environments.production = {
     'httpPort'  : 5000,
     'httpsPort' : 5001,
     'envName'   : 'production',
-    'hashSecret': 'ThisIsAnotherSecret' 
+    'hashSecret': 'ThisIsAnotherSecret',
+    'maxChecks' : 5
 };
 
 // Determine which environment was passed as a command-line arg
