@@ -2,8 +2,15 @@ let ChecksRouter    = require("../lib/router").Router("checks");
 let config          = require("../config");
 let _data           = require("../lib/data");
 const helpers       = require("../lib/helpers");
+const utils       = require("../lib/utils");
+let _ = ""
 
-ChecksRouter.post("", (req, res) => {
+//#region [POST] Create a new check
+/**
+ * @description
+ * @requires [protocol,url,method,successCode,timeoutSeconds]
+ */
+ChecksRouter.post(_, (req, res) => {
     let payload = req.data.payload;
     let protocol = typeof(payload.protocol) === 'string' && ["https", "http"].indexOf(payload.protocol) > -1 ? payload.protocol : false;
     let url = typeof(payload.url) === 'string' && payload.url.trim().length > 0 ? payload.url.trim() : false;
@@ -34,7 +41,7 @@ ChecksRouter.post("", (req, res) => {
                                 'protocol'  : protocol,
                                 'url'       : url,
                                 'method'    : method,
-                                'succesCode': successCode,
+                                'successCode': successCode,
                                 'timeoutSeconds': timeoutSeconds
                             };
 
@@ -58,5 +65,87 @@ ChecksRouter.post("", (req, res) => {
         });
     } else res.status(400).json({ Error: 'Missing required inputs' });
 });
+//#endregion
+
+//#region [GET] Get the check by query.id
+/**
+ * @requires [id]
+ */
+ChecksRouter.get(_, (req, res) => {
+    console.log(req.data.query.id, req.data.query.id.length)
+    let id = typeof(req.data.query.id) == 'string' && req.data.query.id.trim().length == 20 ? req.data.query.id.trim() : false
+    if (id) {
+        // Look up the check
+        _data.read("checks", id, (err, checkData) => {
+            if (!err && checkData) {
+                // Get the token from the header
+                let token = typeof(req.headers.token) === 'string' ? req.headers.token : false;
+                // Verify the given token from the header and belongs to the user who created the check
+                utils.verifyToken(token, checkData.userPhone, (tokenIsValid) => {
+                    // Look up the user
+                    if (tokenIsValid) {
+                        res.status(200).json(checkData);
+                    } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' });
+                });
+            } else res.status(404).json({ Error: "Check didn't found" })
+        });
+    } else res.status(400).json({ Error: "Missing or incorrect required field" });
+});
+//#endregion
+
+//#region [PUT] Update the check
+/**
+ * @requires [id]
+ */
+ChecksRouter.put(_, (req, res) => {
+    let payload = req.data.payload;
+    // Check for the required
+    let id = typeof(payload.id) == 'string' && payload.id.trim().length == 20 ? payload.id.trim() : false
+    // Check for the optional data
+    let protocol = typeof(payload.protocol) === 'string' && ["https", "http"].indexOf(payload.protocol) > -1 ? payload.protocol : false;
+    let url = typeof(payload.url) === 'string' && payload.url.trim().length > 0 ? payload.url.trim() : false;
+    let method = typeof(payload.method) === 'string' && ["post", "get", "put", "delete"].indexOf(payload.method) > -1 ? payload.method : false;
+    let successCode = typeof(payload.successCode) === 'object' &&  payload.successCode instanceof Array && payload.successCode.length > 0 ? payload.successCode : false
+    let timeoutSeconds = typeof(payload.timeoutSeconds) === 'number' && payload.timeoutSeconds % 1 === 0 && payload.timeoutSeconds >= 1 && payload.timeoutSeconds <= 5 ? payload.timeoutSeconds : false;
+
+    // Check to make sure the id is valid
+    if (id) {
+        // Check for one of theses optional data to be valid
+        if (protocol || url || method || successCode || timeoutSeconds) {
+            // Look up the check
+            _data.read("checks", id, (err, checkData) => {
+                if (!err && checkData) {
+                    // Get the token from the header
+                    let token = typeof(req.headers.token) === 'string' ? req.headers.token : false;
+                    // Verify the given token from the header and belongs to the user who created the check
+                    utils.verifyToken(token, checkData.userPhone, (tokenIsValid) => {
+                        // Look up the user
+                        if (tokenIsValid) {
+                            // Update the check where neccessary
+                            if (protocol) checkData.protocol = protocol;
+                            if (url) checkData.url = url;
+                            if (method) checkData.method = method;
+                            if (successCode) checkData.successCode = successCode;
+                            if (timeoutSeconds) checkData.timeoutSeconds = timeoutSeconds;
+                            // Store the new update
+                            _data.update("checks", id, checkData, (err) => {
+                                if (!err) {
+                                    res.status(200).json({ Success: 'updated' })
+                                } else res.status(500).json({ Error: 'Could not update the check' });
+                            });
+                        } else res.status(403).json({ Error: 'Missing required token in header, or token is invalid' });
+                    });
+                } else res.status(404).json({ Error: "Check id did not exist" })
+            });
+        } else res.status(400).json({ Error: 'Please make sure you have one the optional data fields' });
+    } else res.status(400).json({ Error: "Missing or incorrect required id parameter field" });
+});
+//#endregion
+
+//#region [DELETE] Delete the check
+/**
+ * @requires [id]
+ */
+//#endregion
 
 module.exports = ChecksRouter;
