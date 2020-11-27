@@ -1,5 +1,6 @@
 /**
  * Create and export configuration variables
+ * Used for example. Because the origin config.js now contain secure data
  */
 
 // Container for all the environments

@@ -15,7 +15,15 @@ const {
     TokenRouter,
     CheckRouter
 } = require('./routes');
+const helpers = require('./lib/helpers');
 //#endregion
+
+/**
+ * @todo GET RID OF THIS
+ */
+helpers.sendTwillioSms('0766284056', 'Hello', (err) => {
+    console.log(err)
+});
 
 //#region Init Http
 const httpServer = http.createServer(MiniRouter);
