@@ -24,9 +24,9 @@ var server = {};
 /**
  * @todo GET RID OF THIS
  */
-helpers.sendTwillioSms('0766284056', 'Hello', (err) => {
-    console.log(err)
-});
+// helpers.sendTwillioSms('0766284056', 'Hello', (err) => {
+//     console.log(err)
+// });
 
 //#region Init Http & Https
 server.http     = http.createServer(MiniRouter);

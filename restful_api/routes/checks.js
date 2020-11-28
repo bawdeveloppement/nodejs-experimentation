@@ -8,17 +8,17 @@ let _ = ""
 //#region [POST] Create a new check
 /**
  * @description
- * @requires [protocol,url,method,successCode,timeoutSeconds]
+ * @requires [protocol,url,method,successCodes,timeoutSeconds]
  */
 ChecksRouter.post(_, (req, res) => {
     let payload = req.data.payload;
     let protocol = typeof(payload.protocol) === 'string' && ["https", "http"].indexOf(payload.protocol) > -1 ? payload.protocol : false;
     let url = typeof(payload.url) === 'string' && payload.url.trim().length > 0 ? payload.url.trim() : false;
     let method = typeof(payload.method) === 'string' && ["post", "get", "put", "delete"].indexOf(payload.method) > -1 ? payload.method : false;
-    let successCode = typeof(payload.successCode) === 'object' &&  payload.successCode instanceof Array && payload.successCode.length > 0 ? payload.successCode : false
+    let successCodes = typeof(payload.successCodes) === 'object' &&  payload.successCodes instanceof Array && payload.successCodes.length > 0 ? payload.successCodes : false
     let timeoutSeconds = typeof(payload.timeoutSeconds) === 'number' && payload.timeoutSeconds % 1 === 0 && payload.timeoutSeconds >= 1 && payload.timeoutSeconds <= 5 ? payload.timeoutSeconds : false;
 
-    if (protocol && url && method && successCode && timeoutSeconds) {
+    if (protocol && url && method && successCodes && timeoutSeconds) {
         // Get the token from the headers
         let token  = typeof(req.headers.token) == 'string' ? req.headers.token : false;
 
@@ -41,7 +41,7 @@ ChecksRouter.post(_, (req, res) => {
                                 'protocol'  : protocol,
                                 'url'       : url,
                                 'method'    : method,
-                                'successCode': successCode,
+                                'successCodes': successCodes,    
                                 'timeoutSeconds': timeoutSeconds
                             };
 
@@ -105,13 +105,13 @@ ChecksRouter.put(_, (req, res) => {
     let protocol = typeof(payload.protocol) === 'string' && ["https", "http"].indexOf(payload.protocol) > -1 ? payload.protocol : false;
     let url = typeof(payload.url) === 'string' && payload.url.trim().length > 0 ? payload.url.trim() : false;
     let method = typeof(payload.method) === 'string' && ["post", "get", "put", "delete"].indexOf(payload.method) > -1 ? payload.method : false;
-    let successCode = typeof(payload.successCode) === 'object' &&  payload.successCode instanceof Array && payload.successCode.length > 0 ? payload.successCode : false
+    let successCodes = typeof(payload.successCodes) === 'object' &&  payload.successCodes instanceof Array && payload.successCodes.length > 0 ? payload.successCodes : false
     let timeoutSeconds = typeof(payload.timeoutSeconds) === 'number' && payload.timeoutSeconds % 1 === 0 && payload.timeoutSeconds >= 1 && payload.timeoutSeconds <= 5 ? payload.timeoutSeconds : false;
 
     // Check to make sure the id is valid
     if (id) {
         // Check for one of theses optional data to be valid
-        if (protocol || url || method || successCode || timeoutSeconds) {
+        if (protocol || url || method || successCodes || timeoutSeconds) {
             // Look up the check
             _data.read("checks", id, (err, checkData) => {
                 if (!err && checkData) {
@@ -125,7 +125,7 @@ ChecksRouter.put(_, (req, res) => {
                             if (protocol) checkData.protocol = protocol;
                             if (url) checkData.url = url;
                             if (method) checkData.method = method;
-                            if (successCode) checkData.successCode = successCode;
+                            if (successCodes) checkData.successCodes = successCodes;
                             if (timeoutSeconds) checkData.timeoutSeconds = timeoutSeconds;
                             // Store the new update
                             _data.update("checks", id, checkData, (err) => {
