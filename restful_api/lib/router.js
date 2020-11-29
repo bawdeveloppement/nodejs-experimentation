@@ -1,6 +1,8 @@
 const { StringDecoder } = require("string_decoder");
 const url   = require("url");
 const helpers = require("./helpers");
+const util  = require('util');
+const debug = util.debuglog('MROUTER');
 
 // This module will be used for creating a router handler
 // Providing method to register router
@@ -29,7 +31,7 @@ var MiniRouter = (req, res) => {
 
         res.json = (obj) => {
             if (typeof(obj) !== 'object') {
-                console.log("The provided arg isn't a valid object");
+                debug("The provided arg isn't a valid object");
             } else {
                 res.setHeader('Content-Type', 'application/json');
                 res.tempStatus ? res.writeHead(res.tempStatus) : res.writeHead(200);
@@ -43,7 +45,7 @@ var MiniRouter = (req, res) => {
         req.data.query = query;
 
         if (typeof targetHandler !== "undefined") {
-            console.log(`[${targetHandler.method.toLocaleUpperCase()}] / ${targetHandler.name}`)
+            debug(`[${targetHandler.method.toLocaleUpperCase()}] / ${targetHandler.name}`)
             targetHandler.cb(req, res);
         } else MiniRouter.routes.filter(({ name }) => name === "*")[0].cb(req, res);
     });

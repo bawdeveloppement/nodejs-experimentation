@@ -5,3 +5,4 @@ restful_api/.data/checks/*
 restful_api/.data/tokens/*
 
 /restful_api/lib/config.js
+/restful_api/.logs/*
