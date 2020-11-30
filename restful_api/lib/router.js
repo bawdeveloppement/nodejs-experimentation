@@ -2,6 +2,7 @@ const { StringDecoder } = require("string_decoder");
 const url   = require("url");
 const helpers = require("./helpers");
 const util  = require('util');
+const { cpuUsage } = require("process");
 const debug = util.debuglog('MROUTER');
 
 // This module will be used for creating a router handler
@@ -80,6 +81,7 @@ MiniRouter.Router = (routeName) => {
     let routes = []
     const getRouteName = (name) => `${routeName}${name.length != 0 ? "/"+name : name}`
     return {
+        indexName: routeName,
         routes: routes, // Return the internal route for later bind steps
         get     : (name, cb) => routes.push({ name: getRouteName(name), method: "get",      cb }),
         post    : (name, cb) => routes.push({ name: getRouteName(name), method: "post",     cb }),

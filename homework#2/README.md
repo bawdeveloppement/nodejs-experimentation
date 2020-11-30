@@ -3,6 +3,7 @@
 ## Intro
 
 PizzaHub is an API to let people register as an customer or a provider, in other word A Pizza Hut.
+Pizza_Hub intend to let you make a server to manage a pizzeria and let you does register to a global plateform like uber_eats for example.
 
 ## HOW DOES IT WORK
 
